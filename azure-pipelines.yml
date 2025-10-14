@@ -1,27 +1,27 @@
-# Starter pipeline
-
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- master
-
+  - main
+ 
 pool:
   vmImage: ubuntu-latest
-
+ 
+variables:
+  SCAN_PATH: "$(Build.Repository.LocalPath)"
+ 
 steps:
-- task: CmdLine@2
-  inputs:
-    script: |
-      curl -o wizcli.exe https://wizcli.app.wiz.io/latest/wizcli-windows-amd64.exe
-      .\wizcli.exe auth --id $(WIZ_CLIENT_ID) --secret $(WIZ_CLIENT_SECRET)
-      .\wizcli.exe docker scan --image mcr.microsoft.com/windows/nanoserver:ltsc2022
-      
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - task: CmdLine@2
+    inputs:
+      script: |
+        echo "##[command]Obtaining WizCLI from the inter-webs..."
+        sudo curl -o /usr/bin/wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64
+        echo "##[command]Making WizCLI executable"
+        sudo chmod +x /usr/bin/wizcli
+        /usr/bin/./wizcli auth --id $(WIZ_CLIENT_ID) --secret $(WIZ_CLIENT_SECRET)
+    displayName: Download latest WizCLI and Authenticate
+ 
+  - task: CmdLine@2
+    inputs:
+      script: |
+        /usr/bin/./wizcli iac scan --path "$SCAN_PATH"
+        /usr/bin/./wizcli dir scan --path "$SCAN_PATH"
+    displayName: Scan IaC with WizCLI
+ 
