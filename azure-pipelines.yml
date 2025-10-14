@@ -22,6 +22,5 @@ steps:
     inputs:
       script: |
         /usr/bin/./wizcli iac scan --path "$SCAN_PATH"
-        /usr/bin/./wizcli dir scan --path "$SCAN_PATH"
     displayName: Scan IaC with WizCLI
  
