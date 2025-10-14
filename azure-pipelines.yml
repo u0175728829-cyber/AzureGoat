@@ -15,7 +15,7 @@ steps:
         sudo curl -o /usr/bin/wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64
         echo "##[command]Making WizCLI executable"
         sudo chmod +x /usr/bin/wizcli
-        /usr/bin/./wizcli auth --id $(WIZ_CLIENT_ID) --secret $(WIZ_CLIENT_SECRET)
+        /usr/bin/./wizcli auth --id $(WIZ_CLIENT_ID2) --secret $(WIZ_CLIENT_SECRET2)
     displayName: Download latest WizCLI and Authenticate
  
   - task: CmdLine@2
