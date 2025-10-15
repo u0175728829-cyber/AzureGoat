@@ -21,43 +21,45 @@
 #       /usr/bin/./wizcli dir scan --path "$SCAN_PATH"
 
  steps:
-   - task: NodeTool@0
-     displayName: "Use Node.js 22.x"
-     inputs:
-       versionSpec: "22.x"
-   - bash: |
-       set -euo pipefail
-       sudo apt-get update
-       sudo apt-get install -y --no-install-recommends jq ca-certificates curl
-       BASE="${CORTEX_API_URL%/}"
-       URL="$BASE/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64"
-       set +x
-       CRTX_URL=$(curl -fsSL "$URL" \
-         -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID2}" \
-         -H "Authorization: ${CORTEX_API_KEY2}" | jq -r '.signed_url')
-       set -x
-       curl -fsSL -o cortexcli "$CRTX_URL"
-       chmod +x cortexcli
-     displayName: "Download cortexcli (amd64)"
-     env:
-       CORTEX_API_URL: $(CORTEX_API_URL)
-       CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
-       CORTEX_API_KEY2: $(CORTEX_API_KEY2)
-   - bash: |
-       set -euo pipefail
-       ./cortexcli \
-         --api-base-url "${CORTEX_API_URL}" \
-         --api-key "${CORTEX_API_KEY2}" \
-         --api-key-id "${CORTEX_API_KEY_ID2}" \
-         code scan \
-         --directory "$(Build.SourcesDirectory)" \
-         --repo-id "$(Build.Repository.Name)" \
-         --branch "$(Build.SourceBranchName)" \
-         --source "CORTEX_CLI" \
-         --create-repo-if-missing
-     displayName: "Cortex CLI Code Scan"
-     env:
-       CORTEX_API_URL: $(CORTEX_API_URL)
-       CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
-       CORTEX_API_KEY2: $(CORTEX_API_KEY2)
-       MIN_LOG_LEVEL: $(MIN_LOG_LEVEL)
+  - checkout: self
+    clean: true
+  - task: NodeTool@0
+    displayName: "Use Node.js 22.x"
+    inputs:
+      versionSpec: "22.x"
+  - bash: |
+      set -euo pipefail
+      sudo apt-get update
+      sudo apt-get install -y --no-install-recommends jq ca-certificates curl
+      BASE="${CORTEX_API_URL%/}"
+      URL="$BASE/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64"
+      set +x
+      CRTX_URL=$(curl -fsSL "$URL" \
+        -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID2}" \
+        -H "Authorization: ${CORTEX_API_KEY2}" | jq -r '.signed_url')
+      set -x
+      curl -fsSL -o cortexcli "$CRTX_URL"
+      chmod +x cortexcli
+    displayName: "Download cortexcli (amd64)"
+    env:
+      CORTEX_API_URL: $(CORTEX_API_URL)
+      CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
+      CORTEX_API_KEY2: $(CORTEX_API_KEY2)
+  - bash: |
+      set -euo pipefail
+      ./cortexcli \
+        --api-base-url "${CORTEX_API_URL}" \
+        --api-key "${CORTEX_API_KEY2}" \
+        --api-key-id "${CORTEX_API_KEY_ID2}" \
+        code scan \
+        --directory "$(Build.SourcesDirectory)" \
+        --repo-id "$(Build.Repository.Name)" \
+        --branch "$(Build.SourceBranchName)" \
+        --source "CORTEX_CLI" \
+        --create-repo-if-missing
+    displayName: "Cortex CLI Code Scan"
+    env:
+      CORTEX_API_URL: $(CORTEX_API_URL)
+      CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
+      CORTEX_API_KEY2: $(CORTEX_API_KEY2)
+      MIN_LOG_LEVEL: $(MIN_LOG_LEVEL)
