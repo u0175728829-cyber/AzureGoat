@@ -32,7 +32,7 @@ steps:
   - bash: |
       set -euo pipefail
       BASE="${CORTEX_API_URL%/}"
-      URL="$BASE/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=arm64"
+      URL="$BASE/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64"
       set +x
       CRTX_URL=$(curl -fsSL "$URL" \
         -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID2}" \
@@ -40,7 +40,7 @@ steps:
       set -x
       curl -fsSL -o cortexcli "$CRTX_URL"
       chmod +x cortexcli
-    displayName: "Download cortexcli (arm64)"
+    displayName: "Download cortexcli (amd64)"
     env:
       CORTEX_API_URL: $(CORTEX_API_URL)
       CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
