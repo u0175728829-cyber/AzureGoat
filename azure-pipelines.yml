@@ -4,15 +4,12 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-
 variables:
   SCAN_PATH: "$(Build.Repository.LocalPath)"
   CORTEX_API_URL: "https://api-pov-2025-gk4pa.xdr.fa.paloaltonetworks.com"
   MIN_LOG_LEVEL: "DEBUG"
 
 steps:
-  - checkout: self
-    clean: true
   - task: CmdLine@2
     inputs:
       script: |
