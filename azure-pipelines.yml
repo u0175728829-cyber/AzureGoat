@@ -39,7 +39,7 @@
         -H "Authorization: ${CORTEX_API_KEY2}" | jq -r '.signed_url')
       set -x
       curl -fsSL -o cortexcli "$CRTX_URL"
-      chmod +x cortexcli
+      sudo chmod +x cortexcli
     displayName: "Download cortexcli (amd64)"
     env:
       CORTEX_API_URL: $(CORTEX_API_URL)
