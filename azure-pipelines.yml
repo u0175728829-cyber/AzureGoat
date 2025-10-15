@@ -1,13 +1,18 @@
 trigger:
   - main
- 
+
 pool:
   vmImage: ubuntu-latest
- 
+
+
 variables:
   SCAN_PATH: "$(Build.Repository.LocalPath)"
- 
+  CORTEX_API_URL: "https://api-pov-2025-gk4pa.xdr.fa.paloaltonetworks.com"
+  MIN_LOG_LEVEL: "DEBUG"
+
 steps:
+  - checkout: self
+    clean: true
   - task: CmdLine@2
     inputs:
       script: |
@@ -15,12 +20,48 @@ steps:
         sudo curl -o /usr/bin/wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64
         echo "##[command]Making WizCLI executable"
         sudo chmod +x /usr/bin/wizcli
-        /usr/bin/./wizcli auth --id $(WIZ_CLIENT_ID2) --secret $(WIZ_CLIENT_SECRET2)
+        /usr/bin/./wizcli auth --id $(WIZ_CLIENT_ID) --secret $(WIZ_CLIENT_SECRET)
     displayName: Download latest WizCLI and Authenticate
- 
   - task: CmdLine@2
     inputs:
       script: |
         /usr/bin/./wizcli iac scan --path "$SCAN_PATH"
+        /usr/bin/./wizcli dir scan --path "$SCAN_PATH"
     displayName: Scan IaC with WizCLI
- 
+
+  - task: NodeTool@0
+    displayName: "Use Node.js 22.x"
+    inputs: { versionSpec: "22.x" }
+  - bash: |
+      set -euo pipefail
+      BASE="${CORTEX_API_URL%/}"
+      URL="$BASE/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=arm64"
+      set +x
+      CRTX_URL=$(curl -fsSL "$URL" \
+        -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID2}" \
+        -H "Authorization: ${CORTEX_API_KEY2}" | jq -r '.signed_url')
+      set -x
+      curl -fsSL -o cortexcli "$CRTX_URL"
+      chmod +x cortexcli
+    displayName: "Download cortexcli (arm64)"
+    env:
+      CORTEX_API_URL: $(CORTEX_API_URL)
+      CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
+      CORTEX_API_KEY2: $(CORTEX_API_KEY2)
+  - bash: |
+      set -euo pipefail
+      ./cortexcli \
+        --api-base-url "${CORTEX_API_URL}" \
+        --api-key "${CORTEX_API_KEY2}" \
+        --api-key-id "${CORTEX_API_KEY_ID2}" \
+        code scan \
+        --directory "$(Build.SourcesDirectory)" \
+        --repo-id "$(Build.Repository.Name)" \
+        --branch "$(Build.SourceBranchName)" \
+        --source "CORTEX_CLI" \
+        --create-repo-if-missing
+    displayName: "Cortex CLI Code Scan (ARM64)"
+    env:
+      CORTEX_API_URL: $(CORTEX_API_URL)
+      CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
+      CORTEX_API_KEY2: $(CORTEX_API_KEY2)
