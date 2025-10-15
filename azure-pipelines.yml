@@ -58,6 +58,7 @@
         --branch "$(Build.SourceBranchName)" \
         --source "CORTEX_CLI" \
         --create-repo-if-missing
+      cat /tmp/cortexcli-2417593210.log
     displayName: "Cortex CLI Code Scan"
     env:
       CORTEX_API_URL: $(CORTEX_API_URL)
