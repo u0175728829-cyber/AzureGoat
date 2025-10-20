@@ -63,7 +63,6 @@
         if [ $? -eq 0 ]; then
           echo "fcs docker container image pulled successfully"
           echo "=============== FCS IaC Scan Starts ==============="
-          ls
           docker run --network=host --rm \
             -v "$PROJECT_PATH":/workspace \
             "$CS_IMAGE_NAME":"$CS_IMAGE_TAG" \
@@ -71,9 +70,10 @@
             --client-secret "$FALCON_CLIENT_SECRET" \
             --falcon-region "$FALCON_REGION" \
             scan iac \
+            --upload \
             --path /workspace \
-            --fail-on "critical=10,high=70,medium=50,informational=10"
-            --upload
+            --fail-on "critical=10,high=70,medium=50,informational=10" 
+            
           scan_status=$?
           echo "=============== FCS IaC Scan Ends ==============="
           echo "fcs-iac-scan-status: ${scan_status}"
