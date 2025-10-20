@@ -15,25 +15,7 @@
   # Obtenir le token API et le password du registre
   - script: |
       set -e
-      echo "Getting Falcon API Access Token..."
-      
-      
-      echo "$FALCON_CLIENT_ID" "$FALCON_CLIENT_SECRET" "$FALCON_API_URL"
-
-      # Print raw response
-      RESPONSE=$(curl --silent --request POST \
-        --header "Content-Type: application/x-www-form-urlencoded" \
-        --data-urlencode "client_id=${FALCON_CLIENT_ID}" \
-        --data-urlencode "client_secret=${FALCON_CLIENT_SECRET}" \
-        --url "${FALCON_API_URL}/oauth2/token")
-
-      echo "RESPONSE: $RESPONSE"
-
-      # Try extracting token
-      echo "$RESPONSE" | jq .
-      echo "$RESPONSE" | jq -r '.access_token'
-      
-      
+      echo "Getting Falcon API Access Token..."      
       export FALCON_ACCESS_TOKEN=$(curl --silent --request POST \
         --header "Content-Type: application/x-www-form-urlencoded" \
         --data-urlencode "client_id=${FALCON_CLIENT_ID}" \
@@ -64,6 +46,15 @@
       set +x
       scan_status=0
       if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
+        echo "CS_USERNAME: $CS_USERNAME"
+        echo "CS_PASSWORD: $CS_PASSWORD"
+        echo "CS_REGISTRY: $CS_REGISTRY"
+        echo "CS_IMAGE_NAME: $CS_IMAGE_NAME"
+        echo "CS_IMAGE_TAG: $CS_IMAGE_TAG"
+        echo "FALCON_CLIENT_ID: $FALCON_CLIENT_ID"
+        echo "FALCON_CLIENT_SECRET: $FALCON_CLIENT_SECRET"
+        echo "FALCON_REGION: $FALCON_REGION"
+        echo "PROJECT_PATH: $PROJECT_PATH"echo "$CS_USERNAME"
         echo "Error: required environment variables/params are not set"
         exit 1
       fi
