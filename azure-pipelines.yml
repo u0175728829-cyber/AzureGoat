@@ -63,6 +63,7 @@
         if [ $? -eq 0 ]; then
           echo "fcs docker container image pulled successfully"
           echo "=============== FCS IaC Scan Starts ==============="
+          ls
           docker run --network=host --rm "$CS_IMAGE_NAME":"$CS_IMAGE_TAG" --client-id "$FALCON_CLIENT_ID" --client-secret "$FALCON_CLIENT_SECRET" --falcon-region "$FALCON_REGION" scan iac --path "$PROJECT_PATH" --fail-on "critical=10,high=70,medium=50,informational=10"
           scan_status=$?
           echo "=============== FCS IaC Scan Ends ==============="
@@ -84,12 +85,12 @@
       echo "Returned scan status: $scan_status"
       if [ "$scan_status" -eq 40 ]; then
         echo "Scan succeeded & vulnerabilities count are ABOVE the '--fail-on' threshold; Pipeline will be marked as SucceededWithIssues."
-        echo "##vso[task.complete result=SucceededWithIssues;]Scan found vulnerabilities above threshold"
+        echo "vso[task.complete result=SucceededWithIssues;]Scan found vulnerabilities above threshold"
       elif [ "$scan_status" -eq 0 ]; then
         echo "Scan succeeded & vulnerabilities count are BELOW the '--fail-on' threshold; Pipeline will be marked as Success."
       else
         echo "Unexpected scan exit code: $scan_status"
-        echo "##vso[task.complete result=Failed;]Unexpected scan exit code: $scan_status"
+        echo "vso[task.complete result=Failed;]Unexpected scan exit code: $scan_status"
         exit 1
       fi
     displayName: 'Evaluate scan status and mark build'
