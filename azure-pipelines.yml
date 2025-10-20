@@ -8,7 +8,7 @@
    CS_REGISTRY: "registry.crowdstrike.com"
    CS_IMAGE_NAME: "crowdstrike.com/fcs/eu-1/release/cs-fcs"
    CS_USERNAME: "fh-39AECBE16A5D4284B1E412F3AC267D18"
-   CS_IMAGE_TAG: "2.1.0"
+   CS_IMAGE_TAG: 2.1.0
    FALCON_API_URL: "https://api.eu-1.crowdstrike.com"
    FALCON_REGION: "eu-1"
    PROJECT_PATH: "$(Build.Repository.LocalPath)"
