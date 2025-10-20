@@ -24,6 +24,7 @@
 
       if [ -z "$FALCON_ACCESS_TOKEN" ] || [ "$FALCON_ACCESS_TOKEN" = "null" ]; then
         echo "Failed to retrieve Falcon API access token"
+        echo "$FALCON_ACCESS_TOKEN"
         exit 1
       fi
 
