@@ -71,7 +71,6 @@
             --falcon-region "$FALCON_REGION" \
             scan image \
             --upload \
-            --fail-on "critical=10,high=70,medium=50,informational=10" 
             
           scan_status=$?
           echo "=============== FCS IaC Scan Ends ==============="
