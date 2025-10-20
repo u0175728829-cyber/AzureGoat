@@ -37,7 +37,6 @@
 
       if [ -z "$CS_PASSWORD" ] || [ "$CS_PASSWORD" = "null" ]; then
         echo "Failed to retrieve CrowdStrike registry password"
-        echo "CS_PASSWORD: $CS_PASSWORD"
         exit 1
       fi
       # Pour propager la variable à l’étape suivante
@@ -48,20 +47,14 @@
       set +x
       scan_status=0
       if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
-        echo "CS_USERNAME: $CS_USERNAME"
-        echo "CS_PASSWORD: $CS_PASSWORD"
-        echo "CS_REGISTRY: $CS_REGISTRY"
-        echo "CS_IMAGE_NAME: $CS_IMAGE_NAME"
-        echo "CS_IMAGE_TAG: $CS_IMAGE_TAG"
-        echo "FALCON_CLIENT_ID: $FALCON_CLIENT_ID"
-        echo "FALCON_CLIENT_SECRET: $FALCON_CLIENT_SECRET"
-        echo "FALCON_REGION: $FALCON_REGION"
-        echo "PROJECT_PATH: $PROJECT_PATH"
         echo "Error: required environment variables/params are not set"
         exit 1
       fi
 
       echo "Logging in to crowdstrike registry with username: $CS_USERNAME"
+      echo "CS_USERNAME: $CS_USERNAME"
+      echo "CS_PASSWORD: $CS_PASSWORD"
+      echo "CS_REGISTRY: $CS_REGISTRY"
       echo "$CS_PASSWORD" | docker login "$CS_REGISTRY" --username "$CS_USERNAME" --password-stdin
 
       if [ $? -eq 0 ]; then
