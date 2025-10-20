@@ -6,12 +6,11 @@
       
  variables:
    CS_REGISTRY: "registry.crowdstrike.com"
-   CS_IMAGE: "crowdstrike.com/fcs/eu-1/release/cs-fcs"
+   CS_IMAGE_NAME: "crowdstrike.com/fcs/eu-1/release/cs-fcs"
    CS_USERNAME: "fh-39AECBE16A5D4284B1E412F3AC267D18-DF"
    CS_IMAGE_TAG: "2.1.0"
    FALCON_API_URL: "https://api.eu-1.crowdstrike.com"
    FALCON_REGION: "eu-1"
-   CS_IMAGE_NAME: ""
  
  steps:
   # Obtenir le token API et le password du registre
@@ -48,7 +47,6 @@
       set +x
       scan_status=0
       if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
-        echo "CS_PASSWORD: $CS_PASSWORD"
         echo "CS_IMAGE_NAME: $CS_IMAGE_NAME"
         echo "Error: required environment variables/params are not set"
         exit 1
