@@ -41,7 +41,7 @@
         exit 1
       fi
       # Pour propager la variable à l’étape suivante
-      echo "vso[task.setvariable variable=CS_PASSWORD]$CS_PASSWORD"
+      echo "##vso[task.setvariable variable=CS_PASSWORD]$CS_PASSWORD"
     displayName: 'Get Falcon API Token and Registry Password'
   # Vérification des variables d'environnement requises
   - script: |
