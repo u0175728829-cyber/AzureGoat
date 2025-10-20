@@ -73,6 +73,7 @@
             scan iac \
             --path /workspace \
             --fail-on "critical=10,high=70,medium=50,informational=10"
+            --upload
           scan_status=$?
           echo "=============== FCS IaC Scan Ends ==============="
           echo "fcs-iac-scan-status: ${scan_status}"
