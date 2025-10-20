@@ -11,6 +11,7 @@
    CS_IMAGE_TAG: "2.1.0"
    FALCON_API_URL: "https://api.eu-1.crowdstrike.com"
    FALCON_REGION: "eu-1"
+   PROJECT_PATH: "$(Build.Repository.LocalPath)"
  
  steps:
   # Obtenir le token API et le password du registre
@@ -47,7 +48,15 @@
       set +x
       scan_status=0
       if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
+        echo "CS_USERNAME: $CS_USERNAME"
+        echo "CS_PASSWORD: $CS_PASSWORD"
+        echo "CS_REGISTRY: $CS_REGISTRY"
         echo "CS_IMAGE_NAME: $CS_IMAGE_NAME"
+        echo "CS_IMAGE_TAG: $CS_IMAGE_TAG"
+        echo "FALCON_CLIENT_ID: $FALCON_CLIENT_ID"
+        echo "FALCON_CLIENT_SECRET: $FALCON_CLIENT_SECRET"
+        echo "FALCON_REGION: $FALCON_REGION"
+        echo "PROJECT_PATH: $PROJECT_PATH"
         echo "Error: required environment variables/params are not set"
         exit 1
       fi
