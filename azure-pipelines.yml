@@ -52,13 +52,13 @@
       fi
 
       echo "Logging in to crowdstrike registry with username: $CS_USERNAME"
-      echo "$CS_REGISTRY"
-      echo "$CS_PASSWORD"
       echo "$CS_PASSWORD" | docker login "$CS_REGISTRY" --username "$CS_USERNAME" --password-stdin
 
       if [ $? -eq 0 ]; then
         echo "Docker login successful"
         echo "Pulling fcs container target from crowdstrike"
+        echo "$CS_IMAGE_NAME"
+        echo "$CS_IMAGE_TAG"
         docker pull "$CS_IMAGE_NAME":"$CS_IMAGE_TAG"
         if [ $? -eq 0 ]; then
           echo "fcs docker container image pulled successfully"
