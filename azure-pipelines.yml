@@ -41,7 +41,7 @@
         exit 1
       fi
       # Pour propager la variable à l’étape suivante
-      echo "vso[task.setvariable variable=CS_PASSWORD;issecret=true]$CS_PASSWORD"
+      echo "vso[task.setvariable variable=CS_PASSWORD]$CS_PASSWORD"
     displayName: 'Get Falcon API Token and Registry Password'
   # Vérification des variables d'environnement requises
   - script: |
@@ -50,7 +50,6 @@
       if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
         echo "CS_PASSWORD: $CS_PASSWORD"
         echo "CS_IMAGE_NAME: $CS_IMAGE_NAME"
-        echo "FALCON_REGION: $FALCON_REGION"
         echo "Error: required environment variables/params are not set"
         exit 1
       fi
