@@ -16,6 +16,24 @@
   - script: |
       set -e
       echo "Getting Falcon API Access Token..."
+      
+      
+      echo "$FALCON_CLIENT_ID" "$FALCON_CLIENT_SECRET" "$FALCON_API_URL"
+
+      # Print raw response
+      RESPONSE=$(curl --silent --request POST \
+        --header "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "client_id=${FALCON_CLIENT_ID}" \
+        --data-urlencode "client_secret=${FALCON_CLIENT_SECRET}" \
+        --url "${FALCON_API_URL}/oauth2/token")
+
+      echo "RESPONSE: $RESPONSE"
+
+      # Try extracting token
+      echo "$RESPONSE" | jq .
+      echo "$RESPONSE" | jq -r '.access_token'
+      
+      
       export FALCON_ACCESS_TOKEN=$(curl --silent --request POST \
         --header "Content-Type: application/x-www-form-urlencoded" \
         --data-urlencode "client_id=${FALCON_CLIENT_ID}" \
