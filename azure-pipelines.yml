@@ -10,6 +10,8 @@
    CS_USERNAME: "fh-39AECBE16A5D4284B1E412F3AC267D18-DF"
    CS_IMAGE_TAG: "2.1.0"
    FALCON_API_URL: "https://api.eu-1.crowdstrike.com"
+   FALCON_REGION: "eu-1"
+   CS_IMAGE_NAME: ""
  
  steps:
   # Obtenir le token API et le password du registre
@@ -35,26 +37,20 @@
 
       if [ -z "$CS_PASSWORD" ] || [ "$CS_PASSWORD" = "null" ]; then
         echo "Failed to retrieve CrowdStrike registry password"
+        echo "CS_PASSWORD: $CS_PASSWORD"
         exit 1
       fi
-
       # Pour propager la variable à l’étape suivante
-      echo "##vso[task.setvariable variable=CS_PASSWORD;issecret=true]$CS_PASSWORD"
+      echo "vso[task.setvariable variable=CS_PASSWORD;issecret=true]$CS_PASSWORD"
     displayName: 'Get Falcon API Token and Registry Password'
   # Vérification des variables d'environnement requises
   - script: |
       set +x
       scan_status=0
       if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
-        echo "CS_USERNAME: $CS_USERNAME"
         echo "CS_PASSWORD: $CS_PASSWORD"
-        echo "CS_REGISTRY: $CS_REGISTRY"
         echo "CS_IMAGE_NAME: $CS_IMAGE_NAME"
-        echo "CS_IMAGE_TAG: $CS_IMAGE_TAG"
-        echo "FALCON_CLIENT_ID: $FALCON_CLIENT_ID"
-        echo "FALCON_CLIENT_SECRET: $FALCON_CLIENT_SECRET"
         echo "FALCON_REGION: $FALCON_REGION"
-        echo "PROJECT_PATH: $PROJECT_PATH"echo "$CS_USERNAME"
         echo "Error: required environment variables/params are not set"
         exit 1
       fi
