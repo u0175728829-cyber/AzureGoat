@@ -69,9 +69,10 @@
             --client-id "$FALCON_CLIENT_ID" \
             --client-secret "$FALCON_CLIENT_SECRET" \
             --falcon-region "$FALCON_REGION" \
-            scan image \
+            scan iac \
             --upload \
-            
+            --path /POC_CNAPP \
+            --fail-on "critical=10,high=70,medium=50,informational=10" 
           scan_status=$?
           echo "=============== FCS IaC Scan Ends ==============="
           echo "fcs-iac-scan-status: ${scan_status}"
