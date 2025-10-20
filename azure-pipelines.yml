@@ -52,10 +52,7 @@
       fi
 
       echo "Logging in to crowdstrike registry with username: $CS_USERNAME"
-      echo "CS_USERNAME: $CS_USERNAME"
-      echo "CS_PASSWORD: $CS_PASSWORD"
-      echo "CS_REGISTRY: $CS_REGISTRY"
-      echo "$CS_PASSWORD" | docker login "$CS_REGISTRY" --username "$CS_USERNAME" --password:stdin
+      echo "$CS_PASSWORD" | docker login "$CS_REGISTRY" --username "$CS_USERNAME" --password-stdin
 
       if [ $? -eq 0 ]; then
         echo "Docker login successful"
