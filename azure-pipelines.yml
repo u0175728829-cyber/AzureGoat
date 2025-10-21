@@ -19,99 +19,99 @@
    MIN_LOG_LEVEL: "DEBUG"
  
  steps:
-  # Obtenir le token API et le password du registre
-  - script: |
-      set -e
-      echo "Getting Falcon API Access Token..."      
-      export FALCON_ACCESS_TOKEN=$(curl --silent --request POST \
-        --header "Content-Type: application/x-www-form-urlencoded" \
-        --data-urlencode "client_id=${FALCON_CLIENT_ID}" \
-        --data-urlencode "client_secret=${FALCON_CLIENT_SECRET}" \
-        --url "${FALCON_API_URL}/oauth2/token" | jq -r '.access_token')
+  # # Obtenir le token API et le password du registre
+  # - script: |
+  #     set -e
+  #     echo "Getting Falcon API Access Token..."      
+  #     export FALCON_ACCESS_TOKEN=$(curl --silent --request POST \
+  #       --header "Content-Type: application/x-www-form-urlencoded" \
+  #       --data-urlencode "client_id=${FALCON_CLIENT_ID}" \
+  #       --data-urlencode "client_secret=${FALCON_CLIENT_SECRET}" \
+  #       --url "${FALCON_API_URL}/oauth2/token" | jq -r '.access_token')
 
-      if [ -z "$FALCON_ACCESS_TOKEN" ] || [ "$FALCON_ACCESS_TOKEN" = "null" ]; then
-        echo "Failed to retrieve Falcon API access token"
-        echo "$FALCON_ACCESS_TOKEN"
-        exit 1
-      fi
+  #     if [ -z "$FALCON_ACCESS_TOKEN" ] || [ "$FALCON_ACCESS_TOKEN" = "null" ]; then
+  #       echo "Failed to retrieve Falcon API access token"
+  #       echo "$FALCON_ACCESS_TOKEN"
+  #       exit 1
+  #     fi
 
-      echo "Getting CrowdStrike registry password..."
-      export CS_PASSWORD=$(curl --silent --request GET \
-        --header "Authorization: Bearer ${FALCON_ACCESS_TOKEN}" \
-        --url "${FALCON_API_URL}/iac/entities/image-registry-credentials/v1" | jq -r '.resources.resources.token')
+  #     echo "Getting CrowdStrike registry password..."
+  #     export CS_PASSWORD=$(curl --silent --request GET \
+  #       --header "Authorization: Bearer ${FALCON_ACCESS_TOKEN}" \
+  #       --url "${FALCON_API_URL}/iac/entities/image-registry-credentials/v1" | jq -r '.resources.resources.token')
 
-      if [ -z "$CS_PASSWORD" ] || [ "$CS_PASSWORD" = "null" ]; then
-        echo "Failed to retrieve CrowdStrike registry password"
-        exit 1
-      fi
-      # Pour propager la variable à l’étape suivante
-      echo "##vso[task.setvariable variable=CS_PASSWORD]$CS_PASSWORD"
-    displayName: 'Get Falcon API Token and Registry Password'
-  # Vérification des variables d'environnement requises
-  - script: |
-      set +x
-      scan_status=0
-      if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
-        echo "Error: required environment variables/params are not set"
-        exit 1
-      fi
+  #     if [ -z "$CS_PASSWORD" ] || [ "$CS_PASSWORD" = "null" ]; then
+  #       echo "Failed to retrieve CrowdStrike registry password"
+  #       exit 1
+  #     fi
+  #     # Pour propager la variable à l’étape suivante
+  #     echo "##vso[task.setvariable variable=CS_PASSWORD]$CS_PASSWORD"
+  #   displayName: 'Get Falcon API Token and Registry Password'
+  # # Vérification des variables d'environnement requises
+  # - script: |
+  #     set +x
+  #     scan_status=0
+  #     if [[ -z "$CS_USERNAME" || -z "$CS_PASSWORD" || -z "$CS_REGISTRY" || -z "$CS_IMAGE_NAME" || -z "$CS_IMAGE_TAG" || -z "$FALCON_CLIENT_ID" || -z "$FALCON_CLIENT_SECRET" || -z "$FALCON_REGION" || -z "$PROJECT_PATH" ]]; then
+  #       echo "Error: required environment variables/params are not set"
+  #       exit 1
+  #     fi
 
-      echo "Logging in to crowdstrike registry with username: $CS_USERNAME"
-      echo "$CS_PASSWORD" | docker login "$CS_REGISTRY" --username "$CS_USERNAME" --password-stdin
+  #     echo "Logging in to crowdstrike registry with username: $CS_USERNAME"
+  #     echo "$CS_PASSWORD" | docker login "$CS_REGISTRY" --username "$CS_USERNAME" --password-stdin
 
-      if [ $? -eq 0 ]; then
-        echo "Docker login successful"
-        echo "Pulling fcs container target from crowdstrike"
-        echo "$CS_IMAGE_NAME"
-        echo "$CS_IMAGE_TAG"
-        docker pull "$CS_IMAGE_NAME":"$CS_IMAGE_TAG"
-        if [ $? -eq 0 ]; then
-          echo "fcs docker container image pulled successfully"
-          echo "=============== FCS IaC Scan Starts ==============="
-          docker run --network=host --rm \
-            -v "$PROJECT_PATH":/workspace \
-            "$CS_IMAGE_NAME":"$CS_IMAGE_TAG" \
-            --client-id "$FALCON_CLIENT_ID" \
-            --client-secret "$FALCON_CLIENT_SECRET" \
-            --falcon-region "$FALCON_REGION" \
-            scan iac \
-            --upload \
-            --path /POC_CNAPP \
-            --fail-on "critical=10,high=70,medium=50,informational=10" 
-          scan_status=$?
-          echo "=============== FCS IaC Scan Ends ==============="
-          echo "fcs-iac-scan-status: ${scan_status}"
-          echo $scan_status > fcs_scan_status.txt
-        else
-          echo "Error: failed to pull fcs docker image from crowdstrike"
-          exit 2
-        fi
-      else
-        echo "Error: docker login failed"
-        exit 3
-      fi
-    displayName: 'Run FCS IaC scan in Docker'
+  #     if [ $? -eq 0 ]; then
+  #       echo "Docker login successful"
+  #       echo "Pulling fcs container target from crowdstrike"
+  #       echo "$CS_IMAGE_NAME"
+  #       echo "$CS_IMAGE_TAG"
+  #       docker pull "$CS_IMAGE_NAME":"$CS_IMAGE_TAG"
+  #       if [ $? -eq 0 ]; then
+  #         echo "fcs docker container image pulled successfully"
+  #         echo "=============== FCS IaC Scan Starts ==============="
+  #         docker run --network=host --rm \
+  #           -v "$PROJECT_PATH":/workspace \
+  #           "$CS_IMAGE_NAME":"$CS_IMAGE_TAG" \
+  #           --client-id "$FALCON_CLIENT_ID" \
+  #           --client-secret "$FALCON_CLIENT_SECRET" \
+  #           --falcon-region "$FALCON_REGION" \
+  #           scan iac \
+  #           --upload \
+  #           --path /POC_CNAPP \
+  #           --fail-on "critical=10,high=70,medium=50,informational=10" 
+  #         scan_status=$?
+  #         echo "=============== FCS IaC Scan Ends ==============="
+  #         echo "fcs-iac-scan-status: ${scan_status}"
+  #         echo $scan_status > fcs_scan_status.txt
+  #       else
+  #         echo "Error: failed to pull fcs docker image from crowdstrike"
+  #         exit 2
+  #       fi
+  #     else
+  #       echo "Error: docker login failed"
+  #       exit 3
+  #     fi
+  #   displayName: 'Run FCS IaC scan in Docker'
 
-  # Gestion des codes de sortie et marquage du build
-  - script: |
-      scan_status=$(cat fcs_scan_status.txt)
-      echo "Returned scan status: $scan_status"
-      if [ "$scan_status" -eq 40 ]; then
-        echo "Scan succeeded & vulnerabilities count are ABOVE the '--fail-on' threshold; Pipeline will be marked as SucceededWithIssues."
-        echo "vso[task.complete result=SucceededWithIssues;]Scan found vulnerabilities above threshold"
-      elif [ "$scan_status" -eq 0 ]; then
-        echo "Scan succeeded & vulnerabilities count are BELOW the '--fail-on' threshold; Pipeline will be marked as Success."
-      else
-        echo "Unexpected scan exit code: $scan_status"
-        echo "vso[task.complete result=Failed;]Unexpected scan exit code: $scan_status"
-        exit 1
-      fi
-    displayName: 'Evaluate scan status and mark build'
+  # # Gestion des codes de sortie et marquage du build
+  # - script: |
+  #     scan_status=$(cat fcs_scan_status.txt)
+  #     echo "Returned scan status: $scan_status"
+  #     if [ "$scan_status" -eq 40 ]; then
+  #       echo "Scan succeeded & vulnerabilities count are ABOVE the '--fail-on' threshold; Pipeline will be marked as SucceededWithIssues."
+  #       echo "vso[task.complete result=SucceededWithIssues;]Scan found vulnerabilities above threshold"
+  #     elif [ "$scan_status" -eq 0 ]; then
+  #       echo "Scan succeeded & vulnerabilities count are BELOW the '--fail-on' threshold; Pipeline will be marked as Success."
+  #     else
+  #       echo "Unexpected scan exit code: $scan_status"
+  #       echo "vso[task.complete result=Failed;]Unexpected scan exit code: $scan_status"
+  #       exit 1
+  #     fi
+  #   displayName: 'Evaluate scan status and mark build'
 
-  # Affichage final (toujours exécuté)
-  - script: |
-      echo "FCS IaC Scan Execution complete.."
-    displayName: 'Always - Scan Complete'
+  # # Affichage final (toujours exécuté)
+  # - script: |
+  #     echo "FCS IaC Scan Execution complete.."
+  #   displayName: 'Always - Scan Complete'
 
 
 
