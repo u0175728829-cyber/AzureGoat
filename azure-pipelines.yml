@@ -150,7 +150,6 @@
       set -x
       curl -fsSL -o cortexcli "$CRTX_URL"
       sudo chmod +x cortexcli
-      cat /tmp/cortexcli-2417593210.log
     displayName: "Download cortexcli (amd64)"
     env:
       CORTEX_API_URL: $(CORTEX_API_URL)
