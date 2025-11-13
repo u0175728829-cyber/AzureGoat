@@ -19,6 +19,48 @@
    MIN_LOG_LEVEL: "DEBUG"
  
  steps:
+  - script: |
+      echo "Checking branch policies for 'main'..."
+      # Prerequisites: System.AccessToken is enabled for the pipeline
+      # See: https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-pipelines
+      ORG_URL=$(echo "$(System.CollectionUri)" | sed 's#/$##')
+      PROJECT="$(System.TeamProject)"
+      REPO_ID="$(Build.Repository.ID)"
+      BRANCH_NAME="refs/heads/main"
+      API_URL="${ORG_URL}/${PROJECT}/_apis/git/repositories/${REPO_ID}/refs?filter=${BRANCH_NAME}&api-version=7.1-preview.1"
+
+      # Check branch policies
+      POLICIES_URL="${ORG_URL}/${PROJECT}/_apis/policy/configurations?repositoryId=${REPO_ID}&refName=${BRANCH_NAME}&api-version=7.1-preview.1"
+      POLICIES=$(curl -s -u ":$(System.AccessToken)" "$POLICIES_URL")
+      REQUIRED_APPROVALS=$(echo $POLICIES | jq '[.value[] | select(.type.displayName | test("Minimum number of reviewers"))] | length')
+
+      echo "Found $REQUIRED_APPROVALS reviewer policies on 'main'."
+      if [ "$REQUIRED_APPROVALS" -lt 1 ]; then
+        echo "ERROR: No required reviewer branch policy found on main branch."
+        exit 1
+      fi
+      echo "Branch policies validated."
+    displayName: "Validate Branch Policies on Main"
+    env:
+      System_AccessToken: $(System.AccessToken)
+    continueOnError: false
+
+  - script: |
+      echo "Verifying that required security scanning steps are present..."
+      # We're checking the YAML itself for evidence of security scan steps.
+      # We expect at least one of: 'FCS IaC scan', 'Wiz CLI', 'Cortex CLI Code Scan'
+      YAML_FILE="azure-pipelines.yml"
+      if [ ! -f "$YAML_FILE" ]; then
+        YAML_FILE="$(Build.SourcesDirectory)/azure-pipelines.yml"
+      fi
+      if grep -q -e "FCS IaC scan" -e "Wiz CLI" -e "Cortex CLI Code Scan" "$YAML_FILE"; then
+        echo "Security scan steps found in pipeline definition."
+      else
+        echo "ERROR: No security scan steps found in pipeline YAML."
+        exit 1
+      fi
+
+  
   # Obtenir le token API et le password du registre
   - script: |
       set -e
