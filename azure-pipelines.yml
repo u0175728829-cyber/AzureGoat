@@ -46,7 +46,7 @@
       fi
       # Pour propager la variable à l’étape suivante
       echo "##vso[task.setvariable variable=CS_PASSWORD]$CS_PASSWORD"
-    displayName: 'Get Falcon API Token and Registry Password'
+    displayName: 'CrowdStrike - Get Falcon API Token and Registry Password'
   # Vérification des variables d'environnement requises
   - script: |
       set +x
@@ -90,7 +90,7 @@
         echo "Error: docker login failed"
         exit 3
       fi
-    displayName: 'Run FCS IaC scan in Docker'
+    displayName: 'CrowdStrike - Run FCS IaC scan in Docker'
 
   # Gestion des codes de sortie et marquage du build
   - script: |
@@ -106,12 +106,12 @@
         echo "vso[task.complete result=Failed;]Unexpected scan exit code: $scan_status"
         exit 1
       fi
-    displayName: 'Evaluate scan status and mark build'
+    displayName: 'CrowdStrike - Evaluate scan status and mark build'
 
   # Affichage final (toujours exécuté)
   - script: |
       echo "FCS IaC Scan Execution complete.."
-    displayName: 'Always - Scan Complete'
+    displayName: 'CrowdStrike - Always - Scan Complete'
 
 
 
@@ -125,7 +125,7 @@
       /usr/bin/./wizcli auth --id $(WIZ_CLIENT_ID2) --secret $(WIZ_CLIENT_SECRET2)
       /usr/bin/./wizcli iac scan --path "$SCAN_PATH"
       /usr/bin/./wizcli dir scan --path "$SCAN_PATH"
-    displayName: "Wiz CLI"
+    displayName: "Wiz - CLI download & execution"
 
 
 
@@ -134,7 +134,6 @@
   - checkout: self
     clean: true
   - task: NodeTool@0
-    displayName: "Cortex Cloud CLI"
     inputs:
       versionSpec: "22.x"
   - bash: |
@@ -150,7 +149,7 @@
       set -x
       curl -fsSL -o cortexcli "$CRTX_URL"
       sudo chmod +x cortexcli
-    displayName: "Download cortexcli (amd64)"
+    displayName: "Cortex Cloud CLI - CLI download"
     env:
       CORTEX_API_URL: $(CORTEX_API_URL)
       CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
@@ -167,7 +166,7 @@
         --branch "$(Build.SourceBranchName)" \
         --source "CORTEX_CLI" \
         --create-repo-if-missing
-    displayName: "Cortex CLI Code Scan"
+    displayName: "Cortex Cloud CLI - CLI execution"
     env:
       CORTEX_API_URL: $(CORTEX_API_URL)
       CORTEX_API_KEY_ID2: $(CORTEX_API_KEY_ID2)
